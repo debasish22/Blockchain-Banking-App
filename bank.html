@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <!-- <link rel="stylesheet" type="text/css" href="main.css"> -->
+
+    <script src="./node_modules/web3/dist/web3.min.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <div class="container">
+
+		<div class="panel panel-default">
+			<div class="panel-heading" style="color:blue">Banking Application</div>
+			<div class="panel-body">
+				<form class="form-horizontal" >
+
+                    <!-- ACCOUNT -->
+						<div class="form-group">
+								<label class="control-label col-sm-2" for="deposit">Account Address:</label>
+								<div class="col-sm-6">
+										<input  class="form-control" id="accountNumber" placeholder="Enter amount" disabled>
+												
+										</select>
+								</div>
+								<!-- <div class="col-sm-4">
+								<button id="btnDeposit" class="btn btn-primary">Deposit Funds</button>
+							  </div> -->
+							  </div>
+
+					<!-- ACCOUNT ENDS -->
+
+					<!-- DEPOSIT -->
+					<div class="form-group">
+					  <label class="control-label col-sm-2" for="deposit">Deposit Amount:</label>
+					  <div class="col-sm-6">
+						<input  class="form-control" id="depositAmount" placeholder="Enter amount">
+					  </div>
+					  <div class="col-sm-4">
+					  <button id="btnDeposit" class="btn btn-primary">Deposit Funds</button>
+					</div>
+					</div>
+					<!-- DEPOSIT ENDS -->
+
+					<!-- WITHDRAW -->
+						<div class="form-group">
+								<label class="control-label col-sm-2" for="deposit">WithDrawn Amount:</label>
+								<div class="col-sm-6">
+								  <input  class="form-control" id="withDrawnAmount" placeholder="Enter amount">
+								</div>
+								<div class="col-sm-4">
+								<button id="btnWithDraw" class="btn btn-primary">WithDraw Funds</button>
+							  </div>
+						</div>
+							 
+
+						<!-- WITHDRAW ENDS -->
+
+						<!-- TRANSFER -->
+						<div class="form-group">
+								<label class="control-label col-sm-2" for="deposit">Transfer Amount:</label>
+								<div class="col-sm-3">
+								  <input  class="form-control" id="transferAmount" placeholder="Enter amount">
+								</div>
+								<div class="col-sm-3">
+										<select class="form-control" id="drpdwnAccountsTransfer" >
+												
+										</select>
+								</div>
+								<div class="col-sm-2">
+								<button id="btnTransferFunds" class="btn btn-primary">Transfer Funds</button>
+							  </div>
+						</div>
+							
+						<!-- TRANSFER ENDS -->
+
+						
+					<!-- BALANCE -->
+					<div class="form-group">
+							<label class="control-label col-sm-2" for="deposit">Balance:</label>
+							<div class="col-sm-6">
+							  <input  class="form-control" id="showBalance"  disabled>
+							</div>
+							<div class="col-sm-4">
+							<button id="button" class="btn btn-primary">Get Balance</button>
+						  </div>
+					</div>
+						 
+
+					<!-- BALANCE ENDS -->
+
+				
+
+
+       
+				</form>
+					<!-- MESSAGE  -->
+						
+				<div class="form-group" style="margin-top:80px">
+						<div class="form-group" id="msgDiv" >
+						<div class="col-sm-12 alert alert-success">
+							<label class="control-label " id="showmsg" for="deposit"></label>
+					</div>
+			</div>
+			  </div>
+				
+				
+				
+			</br>
+			<label id="showNotAnOwner" style="color:red"></label>
+			</div>
+		  </div>
+	
+
+   </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+
+    <script>
+		$("#showmsg").html('');
+	
+	   $('#drpdwnAccountsTransfer').append('<option>--SELECT--</option>');
+      
+	  
+	  
+        web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545"))
+       // web3 = new Web3(web3.currentProvider)
+	   $.each(web3.eth.accounts,function(i,value){
+		$('#drpdwnAccountsTransfer').append($('<option>').text(value).attr('value', i));	
+  
+    })
+	  $("#accountNumber").val(web3.eth.accounts[1]);
+       web3.eth.defaultAccount = web3.eth.accounts[1];//2$("#drpdwnAccounts").find("option:selected").text();
+		console.log(web3.eth.accounts);
+        var AccountDetails = web3.eth.contract(
+			[
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "accountSummaryDetails",
+		"outputs": [
+			{
+				"name": "TransactionId",
+				"type": "uint256"
+			},
+			{
+				"name": "transactionType",
+				"type": "uint8"
+			},
+			{
+				"name": "Description",
+				"type": "string"
+			},
+			{
+				"name": "Debit",
+				"type": "uint256"
+			},
+			{
+				"name": "Credit",
+				"type": "uint256"
+			},
+			{
+				"name": "ReferenceNo",
+				"type": "address"
+			},
+			{
+				"name": "Balance",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "kill",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "message",
+				"type": "string"
+			}
+		],
+		"name": "Failure",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "message",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "getBalanceEvent",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "_message",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "withdrawStatus",
+		"type": "event"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "getBalance",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "withDrawnAmount",
+				"type": "uint256"
+			}
+		],
+		"name": "withdrawAmount",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_to",
+				"type": "address"
+			},
+			{
+				"name": "amountToSend",
+				"type": "uint256"
+			},
+			{
+				"name": "description",
+				"type": "string"
+			}
+		],
+		"name": "transferFunds",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "description",
+				"type": "string"
+			}
+		],
+		"name": "depositFunds",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "_message",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"name": "depositor",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "amountDeposited",
+				"type": "uint256"
+			}
+		],
+		"name": "depositStatus",
+		"type": "event"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "val",
+				"type": "uint256"
+			}
+		],
+		"name": "getAccountSummary",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "message",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"name": "name",
+				"type": "string"
+			}
+		],
+		"name": "printAccountDetails",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "_message",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"name": "SentTo",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "amountSent",
+				"type": "uint256"
+			}
+		],
+		"name": "transferStatus",
+		"type": "event"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "withDrawnAmount",
+				"type": "uint256"
+			},
+			{
+				"name": "description",
+				"type": "string"
+			}
+		],
+		"name": "withdrawFunds",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "_notOwnerMessage",
+				"type": "string"
+			}
+		],
+		"name": "notOwner",
+		"type": "event"
+	}
+]  );
+ 
+        var accountData = AccountDetails.at('0xb9a219631aed55ebc3d998f17c3840b7ec39c0cc');//DEPLOYED CONTRACT ADDRESS
+       
+        //GetBalance Event
+        var accountDataEvent = accountData.getBalanceEvent();
+        accountDataEvent.watch(function(error, result){
+            if (!error)
+                {
+                 
+                    $("#showBalance").val(result.args.amount.c[0]);
+
+                } else {
+                
+                    console.log(error);
+                }
+               
+        });
+
+      
+
+         //Deposit Funds Event
+         
+
+          var depositStatusEvent = accountData.depositStatus();
+          depositStatusEvent.watch(function(error, result){
+            if (!error)
+                {
+                                    
+                    $("#showmsg").html(result.args._message + "by depositor"+' (' + result.args.depositor  + ')' +"is "+ result.args.amountDeposited.c[0]);
+
+                } else {
+                
+                    console.log(error);
+                }
+               
+        });
+
+        
+        //Not an Owner Event
+        
+        var notOwnerEvent = accountData.notOwner();
+        notOwnerEvent.watch(function(error, result){
+            if (!error)
+                {
+                                     
+                    $("#showmsg").html(result.args._notOwnerMessage);
+
+                } else {
+                
+                    console.log(error);
+                }
+               
+        });
+
+		//WithdrawEvent
+        
+        var withDrawStatusStatusEvent = accountData.withdrawStatus();
+        withDrawStatusStatusEvent.watch(function(error, result){
+            if (!error)
+                {
+					
+                   
+                   $("#showmsg").html(result.args._message+" is -> "+ result.args.amount.c[0]);
+
+                } else {
+                
+                    console.log(error);
+                }
+               
+        });
+
+		//TransferEvent
+
+		 var transferStatusEvent =accountData.transferStatus();
+		 transferStatusEvent.watch(function(error, result){
+            if (!error)
+                {
+                 debugger;                    
+                   $("#showmsg").html(result.args._message+" is ->  "+ result.args.amountSent.c[0] + " to " +result.args.SentTo );
+
+                } else {
+                
+                    console.log(error);
+                }
+               
+        });
+          //Get Balance
+          $("#button").click(function() {
+			$("#showmsg").html('');
+		 accountData.getBalance(function(error, result){
+
+                // console.log(result);
+                // console.log(error);
+            });
+        });
+
+        //Deposit Funds 
+
+          $("#btnDeposit").click(function() {
+			$("#showmsg").html('');
+		
+            accountData.depositFunds("test",{
+                from: web3.eth.accounts[0], 
+				gas: 3000000, 
+				value: $("#depositAmount").val()}, 
+                function(err, res){
+
+					console.log(err);
+				});
+
+        });
+
+      //WithDraw Funds
+      $("#btnWithDraw").click(function() {
+		$("#showmsg").html('');
+		
+            accountData.withdrawAmount($("#withDrawnAmount").val());
+      });
+
+	  //Transfer Funds
+
+	  $("#btnTransferFunds").click(function(){
+		$("#showmsg").html('');
+		  var accountNumber=$("#drpdwnAccountsTransfer").find("option:selected").text();
+		  if(	web3.eth.defaultAccount!=accountNumber){
+			accountData.transferFunds(accountNumber,$("#transferAmount").val(),"Transfer1");
+		  }
+		  else{
+			$("#showmsg").html("Select Some Other Account for Transfer instead of your Own Account");
+
+		  }
+		
+	  })
+           </script>
+
+</body>
+</html>
